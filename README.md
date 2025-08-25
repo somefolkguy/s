@@ -1,2 +1,2 @@
 # s
-sss
+https://github.com/somefolkguy/sonefolkguy.github.io/settings/pages
