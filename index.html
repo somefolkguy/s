@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>自制卡浏览网站</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Arial', sans-serif;
+        }
+
+        body {
+            background-color: #f5f5f5;
+            color: #333;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        /* 页面容器 */
+        #app {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            overflow: hidden;
+            min-height: 80vh;
+        }
+
+        /* 页面通用样式 */
+        .page {
+            padding: 30px;
+            display: none;
+        }
+
+            .page.active {
+                display: block;
+                animation: fadeIn 0.5s;
+            }
+
+        /* 首页样式 */
+        .home-page {
+            text-align: center;
+        }
+
+        .options-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 30px;
+            margin: 40px 0;
+        }
+
+        .option {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            width: 280px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+            cursor: pointer;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+            .option:hover {
+                transform: translateY(-5px);
+                box-shadow: 0 8px 20px rgba(0,0,0,0.12);
+            }
+
+            .option h2 {
+                margin: 15px 0;
+                color: #2c3e50;
+            }
+
+            .option p {
+                color: #7f8c8d;
+                margin-bottom: 15px;
+            }
+
+        .option-img {
+            width: 100%;
+            height: 180px;
+            object-fit: cover;
+            border-radius: 8px;
+        }
+
+        /* 子页面样式 */
+        .subpage {
+            position: relative;
+        }
+
+        .back-button {
+            background: #3498db;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-bottom: 25px;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+            .back-button:hover {
+                background: #2980b9;
+            }
+
+        .gallery {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 25px;
+            margin-top: 20px;
+        }
+
+        .gallery-item {
+            position: relative;
+            overflow: hidden;
+            border-radius: 8px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+            cursor: pointer;
+            aspect-ratio: 2/3;
+        }
+
+        .gallery-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.3s;
+        }
+
+        .gallery-item:hover .gallery-img {
+            transform: scale(1.05);
+        }
+
+        /* 放大图片样式 */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.9);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+            .modal.active {
+                display: flex;
+                animation: fadeIn 0.3s;
+            }
+
+        .modal-img {
+            max-width: 90%;
+            max-height: 90%;
+            object-fit: contain;
+            aspect-ratio: 2/3;
+        }
+
+        .close-button {
+            position: absolute;
+            top: 20px;
+            right: 30px;
+            color: white;
+            font-size: 40px;
+            cursor: pointer;
+            background: none;
+            border: none;
+        }
+
+        /* 动画 */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+
+        h1 {
+            color: #2c3e50;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .options-container {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .gallery {
+                grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <!-- 首页 -->
+        <div class="page home-page active">
+            <h1>自制卡浏览网站</h1>
+            <p>千奇百怪的卡都在这里</p>
+
+            <div class="options-container">
+                <div class="option" data-target="nature">
+                    <img src="https://images.unsplash.com/photo-1501854140801-50d01698950b?ixlib=rb-1.2.1&auto=format&fit=crop&w=600&q=80" class="option-img" alt="自然风景">
+                    <h2>自然风景</h2>
+                    <p>欣赏世界各地美丽的自然景观和壮丽风光</p>
+                </div>
+
+                <div class="option" data-target="architecture">
+                    <img src="https://images.unsplash.com/photo-1487958449943-2429e8be8625?ixlib=rb-1.2.1&auto=format&fit=crop&w=600&q=80" class="option-img" alt="城市建筑">
+                    <h2>城市建筑</h2>
+                    <p>探索现代与古典建筑的完美融合</p>
+                </div>
+
+                <div class="option" data-target="animals">
+                    <img src="https://images.unsplash.com/photo-1564349683136-77e08dba1ef7?ixlib=rb-1.2.1&auto=format&fit=crop&w=600&q=80" class="option-img" alt="野生动物">
+                    <h2>野生动物</h2>
+                    <p>发现世界各地珍奇野生动物的精彩瞬间</p>
+                </div>
+
+                
+            </div>
+        </div>
+
+        <!-- 自然风景子页面 -->
+        <div class="page subpage" id="nature-page">
+            <button class="back-button" onclick="goBack()">← 返回首页</button>
+            <h1>自然风景</h1>
+
+            <div class="gallery">
+                <div class="gallery-item">
+                    <img src="https://images.unsplash.com/photo-1506744038136-46273834b3fb?ixlib=rb-1.2.1&auto=format&fit=crop&w=600&q=80" class="gallery-img" alt="山脉">
+                </div>
+                <div class="gallery-item">
+                    <img src="https://images.unsplash.com/photo-1470240731273-7821a6eeb6bd?ixlib=rb-1.2.1&auto=format&fit=crop&w=600&q=80" class="gallery-img" alt="森林">
+                </div>
+                <div class="gallery-item">
+                    <img src="https://images.unsplash.com/photo-1418065460487-3e41a6c84dc5?ixlib=rb-1.2.1&auto=format&fit=crop&w=600&q=80" class="gallery-img" alt="湖泊">
+                </div>
+                <div class="gallery-item">
+                    <img src="https://images.unsplash.com/photo-1502082553048-f009c37129b9?ixlib=rb-1.2.1&auto=format&fit=crop&w=600&q=80" class="gallery-img" alt="日出">
+                </div>
+                <div class="gallery-item">
+                    <img src="https://images.unsplash.com/photo-1511497584788-876760111969?ixlib=rb-1.2.1&auto=format&fit=crop&w=600&q=80" class="gallery-img" alt="海滩">
+                </div>
+                <div class="gallery-item">
+                    <img src="https://images.unsplash.com/photo-1433086966358-54859d0ed716?ixlib=rb-1.2.1&auto=format&fit=crop&w=600&q=80" class="gallery-img" alt="瀑布">
+                </div>
+            </div>
+        </div>
+
+        <!-- 城市建筑子页面 -->
+        <div class="page subpage" id="architecture-page">
+            <button class="back-button" onclick="goBack()">← 返回首页</button>
+            <h1>城市建筑</h1>
+
+            <div class="gallery">
+                <div class="gallery-item">
+                    <img src="https://images.unsplash.com/photo-1449824913935-59a10b8d2000?ixlib=rb-1.2.1&auto=format&fit=crop&w=600&q=80" class="gallery-img" alt="现代建筑">
+                </div>
+                <div class="gallery-item">
+                    <img src="https://images.unsplash.com/photo-1487958449943-2429e8be8625?ixlib=rb-1.2.1&auto=format&fit=crop&w=600&q=80" class="gallery-img" alt="高楼大厦">
+                </div>
+                <div class="gallery-item">
+                    <img src="https://images.unsplash.com/photo-1513584684374-8bab748fbf90?ixlib=rb-1.2.1&auto=format&fit=crop&w=600&q=80" class="gallery-img" alt="桥梁">
+                </div>
+                <div class="gallery-item">
+                    <img src="https://images.unsplash.com/photo-1467269204594-9661b134dd2b?ixlib=rb-1.2.1&auto=format&fit=crop&w=600&q=80" class="gallery-img" alt="城市夜景">
+                </div>
+                <div class="gallery-item">
+                    <img src="https://images.unsplash.com/photo-1496568816309-51d7c20e3b21?ixlib=rb-1.2.1&auto=format&fit=crop&w=600&q=80" class="gallery-img" alt="古典建筑">
+                </div>
+                <div class="gallery-item">
+                    <img src="https://images.unsplash.com/photo-1519501025264-65ba15a82390?ixlib=rb-1.2.1&auto=format&fit=crop&w=600&q=80" class="gallery-img" alt="城市景观">
+                </div>
+            </div>
+        </div>
+
+        <!-- 野生动物子页面 -->
+        <div class="page subpage" id="animals-page">
+            <button class="back-button" onclick="goBack()">← 返回首页</button>
+            <h1>野生动物</h1>
+
+            <div class="gallery">
+                <div class="gallery-item">
+                    <img src="https://images.unsplash.com/photo-1534188753412-3e9336736ed7?ixlib=rb-1.2.1&auto=format&fit=crop&w=600&q=80" class="gallery-img" alt="狮子">
+                </div>
+                <div class="gallery-item">
+                    <img src="https://images.unsplash.com/photo-1500470354667-22b6b4e8bc59?ixlib=rb-1.2.1&auto=format&fit=crop&w=600&q=80" class="gallery-img" alt="鹿">
+                </div>
+                <div class="gallery-item">
+                    <img src="https://images.unsplash.com/photo-1564349683136-77e08dba1ef7?ixlib=rb-1.2.1&auto=format&fit=crop&w=600&q=80" class="gallery-img" alt="狐狸">
+                </div>
+                <div class="gallery-item">
+                    <img src="https://images.unsplash.com/photo-1500470354667-22b6b4e8bc59?ixlib=rb-1.2.1&auto=format&fit=crop&w=600&q=80" class="gallery-img" alt="鸟类">
+                </div>
+                <div class="gallery-item">
+                    <img src="https://images.unsplash.com/photo-1551085254-e96b210db58a?ixlib=rb-1.2.1&auto=format&fit=crop&w=600&q=80" class="gallery-img" alt="熊猫">
+                </div>
+                <div class="gallery-item">
+                    <img src="https://images.unsplash.com/photo-1543946608-3b7c2c73a88c?ixlib=rb-1.2.1&auto=format&fit=crop&w=600&q=80" class="gallery-img" alt="狼">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 图片放大模态框 -->
+    <div class="modal" id="imageModal">
+        <button class="close-button" onclick="closeModal()">&times;</button>
+        <img class="modal-img" id="modalImage" src="" alt="放大图片">
+    </div>
+
+    <script>
+        // 页面切换功能
+        document.querySelectorAll('.option').forEach(option => {
+            option.addEventListener('click', function () {
+                const targetPage = this.getAttribute('data-target') + '-page';
+
+                // 隐藏所有页面
+                document.querySelectorAll('.page').forEach(page => {
+                    page.classList.remove('active');
+                });
+
+                // 显示目标页面
+                document.getElementById(targetPage).classList.add('active');
+            });
+        });
+
+        // 返回首页功能
+        function goBack() {
+            // 隐藏所有页面
+            document.querySelectorAll('.page').forEach(page => {
+                page.classList.remove('active');
+            });
+
+            // 显示首页
+            document.querySelector('.home-page').classList.add('active');
+        }
+
+        // 图片放大功能
+        document.querySelectorAll('.gallery-img').forEach(img => {
+            img.addEventListener('click', function () {
+                const modal = document.getElementById('imageModal');
+                const modalImg = document.getElementById('modalImage');
+
+                modal.style.display = 'flex';
+                modalImg.src = this.src;
+                modalImg.alt = this.alt;
+
+                // 添加active类以触发动画
+                setTimeout(() => {
+                    modal.classList.add('active');
+                }, 10);
+            });
+        });
+
+        // 关闭模态框
+        function closeModal() {
+            const modal = document.getElementById('imageModal');
+            modal.classList.remove('active');
+
+            // 等待动画完成后隐藏
+            setTimeout(() => {
+                modal.style.display = 'none';
+            }, 300);
+        }
+
+        // 点击模态框背景也可关闭
+        document.getElementById('imageModal').addEventListener('click', function (e) {
+            if (e.target === this) {
+                closeModal();
+            }
+        });
+
+        // 支持ESC键关闭
+        document.addEventListener('keydown', function (e) {
+            if (e.key === 'Escape') {
+                closeModal();
+            }
+        });
+    </script>
+</body>
+</html>
